@@ -124,10 +124,13 @@ def updata_wb_ZF(self,cursor,usr):
 def updata_wb_DZ(self,cursor,usr):
     ret = cursor.execute("update wb set DZ= DZ+'{}' where username='{}'".format(1,usr))
 
+@withSessionAutoFree(set_utf8=True)
+def enter_data(self,cursor,username,password):
+    ret = cursor.execute('''insert into user(username,password)values('{}','{}')'''.format(username,password))
 
 
-if __name__ == '__main__':
-    d = updata_wb_ZF(None,'17363075985')
+# if __name__ == '__main__':
+#     d = updata_wb_ZF(None,'17363075985')
     # print(d)
 #     # if d ==1:
     #     insert_data(None,'13783560539','评论',12,'44555',3)

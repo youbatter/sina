@@ -5,6 +5,7 @@ import weiboTask
 import os
 import config.config as config
 import ProxyPool.proxyHttp
+import mysqlDB.connDB as DB
 config.LoadConfig() #载入配置文件
 
 '''代理池设置'''
@@ -77,9 +78,34 @@ def peizhi():
         return jsonify({'code': '0', 'message': '不需要修改配置'})
 
 
-@app.route('/peizhi',methods=['POST','GET'])
-def show_data():
-    pass
+@app.route('/get_account',methods=['POST','GET'])
+def get_account():
+    if request.method == 'POST':
+        file = request.files.get('fileupload')
+        print(file)
+        # 文件名
+        pic_name = file.filename
+        # 文件写入磁盘
+        file.save(pic_name)
+        #处理文件内容
+        with open(pic_name, 'r+') as f:
+            data = f.readlines()
+        lc = []
+        for line in data:
+            dit = {}
+            # 处理内容
+            if '----' in line:
+                A = line.strip('\n').split('----')
+            else:
+                A = line.strip('\n').split('\t')
+            DB.enter_data(None,A[0],A[1])
+            dit['username'] = A[0]
+            dit['password'] = A[1]
+            lc.append(dit)
+        # 将结果返回客户端
+        return jsonify({'code': '1', 'message': '文件接收成功', 'data': lc})
+    else:
+        return jsonify({'code': '0', 'message': '没有数据要展示'})
 
 
 if __name__ == '__main__':
