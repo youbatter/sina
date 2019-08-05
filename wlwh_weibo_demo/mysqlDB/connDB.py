@@ -3,6 +3,7 @@
 from mysqlDB.wbDB import withSessionAutoFree
 import json
 import time
+import datetime
 
 @withSessionAutoFree(set_utf8=True)
 def cha_UA(self,cursor,username):
@@ -125,14 +126,205 @@ def updata_wb_DZ(self,cursor,usr):
     ret = cursor.execute("update wb set DZ= DZ+'{}' where username='{}'".format(1,usr))
 
 @withSessionAutoFree(set_utf8=True)
-def enter_data(self,cursor,username,password):
-    ret = cursor.execute('''insert into user(username,password)values('{}','{}')'''.format(username,password))
+def enter_data(self,cursor,lc):
+    sql = '''insert into user values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'''
+    cursor.executemany(sql, lc)
 
+@withSessionAutoFree(set_utf8=True)
+def cha_Cookie(self,cursor,username):
+    '''判断UA是否存在'''
+    ret = cursor.execute(" SELECT Cookie from user WHERE username='{}'".format(username))
+    d = cursor.fetchone()
+    ua = d.get('Cookie')
+    return ua
 
-# if __name__ == '__main__':
-#     d = updata_wb_ZF(None,'17363075985')
-    # print(d)
-#     # if d ==1:
-    #     insert_data(None,'13783560539','评论',12,'44555',3)
-    # else:
-    #     updata_data(None,'13783560539','评论')
+@withSessionAutoFree(set_utf8=True)
+def cha_ip(self,cursor,device_number):
+    ret = cursor.execute(" SELECT * from device WHERE ip='{}'".format(device_number))
+    return ret
+
+@withSessionAutoFree(set_utf8=True)
+def cha_user(self,cursor,page):
+    page = (page-1) * 200
+    ret = cursor.execute(" SELECT * from `user` limit {},200".format(page))
+    d = cursor.fetchall()
+    print(d)
+    lc = []
+    for i in d:
+        dit = {}
+        dit['账号'] = i.get('username')
+        dit['密码'] = i.get('password')
+        enter_time= i.get('time')
+        dit['导入时间'] = enter_time.strftime("%Y-%m-%d %H:%M:%S")
+        endtime= i.get('endtime')
+        endtime=time.localtime(endtime)
+        dit['结束时间'] = time.strftime("%Y-%m-%d %H:%M:%S", endtime)
+        status = i.get('abn')
+        if status == 1:
+            dit['状态'] = '账号异常'
+        else:
+            status = i.get('type')
+            if status == 1:
+                dit['状态'] = '账号正在运行中'
+            else:
+                dit['状态'] = '账号正常'
+        ret1 = cursor.execute(" SELECT * from `wb` where `username`={} ".format(dit['账号']))
+        get_total = cursor.fetchone()
+        if get_total == None:
+            dit['关注总数'] = 0
+            dit['点赞总数'] = 0
+            dit['转发总数'] = 0
+            dit['评论总数'] = 0
+        else:
+            dit['关注总数'] = get_total.get('GZ')
+            dit['点赞总数'] = get_total.get('DZ')
+            dit['转发总数'] = get_total.get('ZF')
+            dit['评论总数'] = get_total.get('PL')
+        #判断当天关注  数据
+        dit['当天评论总数'] = 0
+        dit['当天关注总数'] = 0
+        dit['当天点赞总数'] = 0
+        dit['当天转发总数'] = 0
+        ret1 = cursor.execute(" SELECT `task_type`,task_data,uid from `do_task_data` where `usr`={} and `time` >= date(now()) and `time` < DATE_ADD(date(now()),INTERVAL 1 DAY) ".format(dit['账号']))
+        get_today_total = cursor.fetchall()
+        if get_today_total :
+            for today_total in get_today_total:
+                dit['uid'] = today_total['uid']
+                print(dit['uid'])
+                type = today_total['task_type']
+                if type== '评论':
+                    dit['当天评论总数'] = today_total['task_data']
+                if type== '转发':
+                    dit['当天转发总数'] = today_total['task_data']
+                if type== '点赞':
+                    dit['当天点赞总数'] = today_total['task_data']
+                if type== '关注':
+                    dit['当天关注总数'] = today_total['task_data']
+        lc.append(dit)
+    return lc
+
+@withSessionAutoFree(set_utf8=True)
+def cha_log(self,cursor,usr):
+    ret1 = cursor.execute(" SELECT uid,actionuid,`type` from log where username={}".format(usr))
+    get_today_log = cursor.fetchall()
+    today_logs = []
+    if get_today_log:
+        for today_log in get_today_log:
+            type = today_log['type']
+            uid = today_log['uid']
+            actionuid = today_log['actionuid']
+            if type == '0':
+                log = uid + '关注' + actionuid + '成功'
+                today_logs.append(log)
+            if type == '1':
+                log = uid + '点赞' + actionuid + '成功'
+                today_logs.append(log)
+            if type == '2':
+                log = uid + '评论' + actionuid + '成功'
+                today_logs.append(log)
+            if type == '3':
+                log = uid + '转发' + actionuid + '成功'
+                today_logs.append(log)
+        return today_logs
+
+@withSessionAutoFree(set_utf8=True)
+def status_doing(self,cursor):
+    ret = cursor.execute(" SELECT username from `user` where type=1")
+    d = cursor.fetchall()
+    today_logs = []
+    for i in d:
+        dit = {}
+        dit['username'] = i['username']
+        ret1 = cursor.execute(" SELECT uid,actionuid,`type`,`time` from log where username={}".format(i['username']))
+        if ret1 == 0:
+            dit['日志'] = '没有日志'
+        else:
+            today_log = cursor.fetchall()[-1]
+            type = today_log['type']
+            uid = today_log['uid']
+            actionuid = today_log['actionuid']
+            if type == '0':
+                log = uid + '关注' + actionuid + '成功'
+                dit['日志'] = log
+            if type == '1':
+                log = uid + '点赞' + actionuid + '成功'
+                dit['日志'] = log
+            if type == '2':
+                log = uid + '评论' + actionuid + '成功'
+                dit['日志'] = log
+            if type == '3':
+                log = uid + '转发' + actionuid + '成功'
+                dit['日志'] = log
+        today_logs.append(dit)
+    return today_logs
+
+@withSessionAutoFree(set_utf8=True)
+def time_order(self,cursor,page):
+    '''
+    按照账号导入时间排序
+    :param self:
+    :param cursor:
+    :param page:
+    :return:
+    '''
+    page = (page - 1) * 200
+    ret = cursor.execute(" SELECT * from `user` ORDER BY `time` DESC limit {},200 ".format(page))
+    d = cursor.fetchall()
+    lc = []
+    for i in d:
+        dit = {}
+        dit['账号'] = i.get('username')
+        dit['密码'] = i.get('password')
+        enter_time = i.get('time')
+        dit['导入时间'] = enter_time.strftime("%Y-%m-%d %H:%M:%S")
+        endtime = i.get('endtime')
+        endtime = time.localtime(endtime)
+        dit['结束时间'] = time.strftime("%Y-%m-%d %H:%M:%S", endtime)
+        status = i.get('abn')
+        if status == 1:
+            dit['状态'] = '账号异常'
+        else:
+            status = i.get('type')
+            if status == 1:
+                dit['状态'] = '账号正在运行中'
+            else:
+                dit['状态'] = '账号正常'
+        ret1 = cursor.execute(" SELECT * from `wb` where `username`={} ".format(dit['账号']))
+        get_total = cursor.fetchone()
+        if get_total == None:
+            dit['关注总数'] = 0
+            dit['点赞总数'] = 0
+            dit['转发总数'] = 0
+            dit['评论总数'] = 0
+        else:
+            dit['关注总数'] = get_total.get('GZ')
+            dit['点赞总数'] = get_total.get('DZ')
+            dit['转发总数'] = get_total.get('ZF')
+            dit['评论总数'] = get_total.get('PL')
+        # 判断当天关注  数据
+        dit['当天评论总数'] = 0
+        dit['当天关注总数'] = 0
+        dit['当天点赞总数'] = 0
+        dit['当天转发总数'] = 0
+        ret1 = cursor.execute(
+            " SELECT `task_type`,task_data,uid from `do_task_data` where `usr`={} and `time` >= date(now()) and `time` < DATE_ADD(date(now()),INTERVAL 1 DAY) ".format(
+                dit['账号']))
+        get_today_total = cursor.fetchall()
+        if get_today_total:
+            for today_total in get_today_total:
+                dit['uid'] = today_total['uid']
+                print(dit['uid'])
+                type = today_total['task_type']
+                if type == '评论':
+                    dit['当天评论总数'] = today_total['task_data']
+                if type == '转发':
+                    dit['当天转发总数'] = today_total['task_data']
+                if type == '点赞':
+                    dit['当天点赞总数'] = today_total['task_data']
+                if type == '关注':
+                    dit['当天关注总数'] = today_total['task_data']
+        lc.append(dit)
+    return lc
+
+if __name__ == '__main__':
+    time_order(None,page=1)

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="../static/layui/css/layui.css">
+    <link rel="stylesheet" href="../static/css/fenye.css">
+    <script src="../static/jquery/jquery.min.js"></script>
+    <title>展示用户信息</title>
+</head>
+<body>
+<div class="layui-form" id="div1">
+    <table class="layui-table">
+        <thead>
+        <tr>
+            <th>账号</th>
+            <th>密码</th>
+            <th>uid</th>
+            <th>导入时间</th>
+            <th>结束时间</th>
+            <th>状态</th>
+            <th>关注总数</th>
+            <th>点赞总数</th>
+            <th>转发总数</th>
+            <th>评论总数</th>
+            <th>当天评论总数</th>
+            <th>当天关注总数</th>
+            <th>当天点赞总数</th>
+            <th>当天转发总数</th>
+            <th>详情</th>
+        </tr>
+        </thead>
+        {% for i in u %}
+        <tbody>
+        <tr>
+            <td id="usr" name="usr">{{ i['账号'] }}</td>
+            <td>{{ i['密码'] }}</td>
+            <td>{{ i['uid'] }}</td>
+            <td>{{ i['导入时间'] }}</td>
+            <td>{{ i['结束时间'] }}</td>
+            <td>{{ i['状态'] }}</td>
+            <td>{{ i['关注总数'] }}</td>
+            <td>{{ i['点赞总数'] }}</td>
+            <td>{{ i['转发总数'] }}</td>
+            <td>{{ i['评论总数'] }}</td>
+            <td>{{ i['当天评论总数'] }}</td>
+            <td>{{ i['当天关注总数'] }}</td>
+            <td>{{ i['当天点赞总数'] }}</td>
+            <td>{{ i['当天点赞总数'] }}</td>
+            <td ><button type="button" id="btn" onclick='btn()'><a href={{ url_for("rizhi", usr=i['账号'])}} >详情</a></button></td>
+        </tr>
+        </tbody>
+        {% endfor %}
+    </table>
+      <ul class="pagination">
+          {% if page == 1%}
+              <li class=''><a href={{ url_for("Show_usr", page=1)}}>首页</a></li>
+              <li class=''><a href={{ url_for("Show_usr", page=page - 1)}}>上一页</a></li>
+          {%endif%}
+          {% for i in range(100) %}
+              {% if i == page%}
+               <li class="active"><a rel="external nofollow" rel="external nofollow" href={{ url_for("Show_usr", page=i)}}>{{i}}</a></li>
+              {%else%}
+                <li><a rel="external nofollow" rel="external nofollow"  href={{ url_for("Show_usr", page=i)}} >{{i}}</a></li>
+              {%endif%}
+          {%endfor%}
+      {% if page == 100 %}
+      <li class=''><a href= {{ url_for("Show_usr", page=page + 1)}} >下一页</a></li>
+      <li class=''><a href={{ url_for("Show_usr", page=100)}} >尾页</a></li>
+      {% endif %}
+      共{{100}}页
+ </ul>
+</div>
+</body>
+</html>

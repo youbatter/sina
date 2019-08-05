@@ -1,0 +1,112 @@
+
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="../static/layui/css/layui.css" media="all">
+    <title></title>
+    <style>
+        *{
+            margin: 0px;
+            padding: 0px;
+        }
+    </style>
+</head>
+<body>
+<div style="padding: 20px; background-color: #F2F2F2;">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-header" style="background-color: rgba(6, 46, 64, 0.15)">修改配置</div>
+                <div class="layui-card-body">
+                    <form action="" method="post" id="test_form">
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">一轮关注个数：</label>
+                            <div class="layui-input-inline">
+                                <input id="n" name="n"  class="layui-input" style="width:300px;" type="text" placeholder="请输入一轮关注个数" autocomplete="off" lay-verify="title">
+                            </div>
+
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">每次时间间隔：</label>
+                            <div class="layui-input-inline">
+                                <input id="m" name="m"  class="layui-input" style="width:300px;" type="text" placeholder="请输入每次关注时间间隔" autocomplete="off" lay-verify="title">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">每轮时间间隔：</label>
+                            <div class="layui-input-inline">
+                                <input id="f" name="f" class="layui-input" style="width:300px;" type="text" placeholder="请输入每轮时间间隔" autocomplete="off" lay-verify="title">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">限制登陆间隔：</label>
+                            <div class="layui-input-inline">
+                                <input id="t" name="t"  class="layui-input" style="width:300px;" type="text" placeholder="请输入每个号限制下次登陆间隔" autocomplete="off" lay-verify="title">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">转发点赞数：</label>
+                            <div class="layui-input-inline">
+                                <input id=like name="like"  class="layui-input" style="width:300px;" type="text" placeholder="请输入一轮转发点赞个数" autocomplete="off" lay-verify="title">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">单独评论数：</label>
+                            <div class="layui-input-inline">
+                                <input id="pl" name="pl"  class="layui-input" style="width:300px;" type="text" placeholder="请输入一轮评论个数" autocomplete="off" lay-verify="title">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <div class="layui-input-block">
+                                <button style="margin-left: 80px;"class="layui-btn" lay-filter="demo1" lay-submit=""  id="btn" >立即提交</button>
+                            </div>
+                        </div>  </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script src="../static/jquery/jquery.min.js"></script>
+<script>
+    $("#btn").click(function() {
+        var n = $('#n').val();
+        var m = $('#m').val();
+        var f = $('#f').val();
+        var t = $('#t').val();
+        var like = $('#like').val();
+        var pl = $('#pl').val();
+        var data = {
+            data:JSON.stringify({
+                n: 'n',
+                m: 'm',
+                f: 'f',
+                t: 't',
+                like:'like',
+                pl:'pl',
+            }),
+        }
+        var form= new FormData(document.getElementById("test_form"));
+        $.ajax({
+            url: "/peizhi",
+            type: "post",
+            data: form,
+            dataType: 'json',
+            processData: false,
+            contentType: false,
+            async: false,//解决http响应状态为canceled
+            success: function (data) {
+                alert(JSON.stringify(data))
+            },
+            error: function (e) {
+                alert("error");
+            }
+        })
+    })
+</script>
+</html>

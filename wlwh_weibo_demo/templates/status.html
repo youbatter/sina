@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>正在运行的账号</title>
+</head>
+<body>
+<div class="layui-form" id="div1">
+    <table class="layui-table">
+        <thead>
+        <tr>
+            <th>运行账号</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for i in u %}
+        <tr>
+            <td>{{ i }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <input type="button" id="btn" ><a href={{ url_for("stauts")}}>刷新</a></input>
+</div>
+</body>
+</html>

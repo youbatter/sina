@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>当前帐号日志展示</title>
+</head>
+<body>
+<div class="layui-form" id="div1">
+    <table class="layui-table">
+        <thead>
+        <tr>
+            <th>日志</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for i in log %}
+        <tr>
+            <td>{{ i }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

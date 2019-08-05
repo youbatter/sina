@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel="stylesheet" href="../static/layui/css/layui.css">
+    <style>
+        *{
+            margin: 0px;
+            padding: 0px;
+        }
+        body{
+            background: #92B8B1;
+        }
+        #div1{
+            text-align: center; /*让div内部文字居中*/
+            border-radius: 20px;
+            width:1000px;
+            height: 350px;
+            margin: auto;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="layui-form" id="div1">
+        <table class="layui-table">
+            <thead>
+            <tr>
+{#                <th style="text-align: center">Ip</th>#}
+{#                <th style="text-align: center">Ip端口</th>#}
+                <th style="text-align: center">开始时间</th>
+                <th style="text-align: center">结束时间</th>
+                <th style="text-align: center">多线程</th>
+                <th style="text-align: center">操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+{#                <td>http://47.97.61.44</td>#}
+{#                <td>3306</td>#}
+                <td>2019-6-15</td>
+                <td>2019-6-15</td>
+                <td>
+                    <form action="" method="post" id="ff">
+                    <input class="layui-input"  value="1" id="n" name="n" type="text"></form></td>
+                <td>
+                    <button class="layui-btn layui-btn-radius" type="submit" id="run"   data-toggle="modal" data-target="#myModal" id="run">开始任务</button>
+                    <button class="layui-btn layui-btn-danger layui-btn-radius" type="submit" id="stop">暂停任务</button>
+                    <button class="layui-btn layui-btn-primary layui-btn-radius" type="submit"  data-toggle="modal" data-target="#myModal" onclick = "chaxun()" id="peizhi">修改配置</button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+<script src="../static/layui/layui.all.js"></script>
+<script src="../static/layui/lay/modules/jquery.js"></script> <!-- 你必须先引入jQuery1.8或以上版本 -->
+<script src="../static/layer/layer.js"></script>
+    <script src="../static/jquery/jquery.min.js"></script>
+<script>
+    function chaxun(){
+        layer.open({
+            type: 2,
+            title: '修改配置',
+            maxmin: true,
+            shadeClose: true, //点击遮罩关闭层
+            area : ['1000px' , '480px'],
+            content: 'Update',
+        });
+    }
+    function run(){
+        layer.open({
+            type: 2,
+            title: '开启线程',
+            maxmin: true,
+            shadeClose: true, //点击遮罩关闭层
+            area : ['1000px' , '480px'],
+            content: 'Xian.html',
+        });
+    }
+    $(document).ready(function() {
+      /*  $("#run").click(function () {
+            $.get("http://47.97.61.44/run/1", function (data, status) {
+            });
+        });*/
+        $("#stop").click(function () {
+            $.get("/stop", function (data, status) {
+            });
+        });
+    });
+</script>
+    <script>
+        $("#run").click(function() {
+            var n = $('#n').val();
+            var data = {
+                data:JSON.stringify({
+                    n: 'n',
+                }),
+            };
+            var form= new FormData(document.getElementById("ff"));
+            $.ajax({
+                url: "/run",
+                type: "post",
+                data: form,
+                dataType: 'json',
+                processData: false,
+                contentType: false,
+            })
+        })
+    </script>
+
+</body>
+</html>
